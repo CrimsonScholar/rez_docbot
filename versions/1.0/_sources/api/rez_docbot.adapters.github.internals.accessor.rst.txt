@@ -1,0 +1,7 @@
+rez\_docbot.adapters.github.internals.accessor
+----------------------------------------------
+
+.. automodule:: rez_docbot.adapters.github.internals.accessor
+   :members:
+   :undoc-members:
+   :show-inheritance:

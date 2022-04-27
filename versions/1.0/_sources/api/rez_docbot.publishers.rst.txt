@@ -1,0 +1,14 @@
+rez\_docbot.publishers
+======================
+
+.. toctree::
+   :maxdepth: 4
+
+   generic <rez_docbot.publishers.generic>
+   github <rez_docbot.publishers.github>
+   publisher_registry <rez_docbot.publishers.publisher_registry>
+
+.. automodule:: rez_docbot.publishers
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Popular Publish Configurations &mdash; rez_docbot 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Publishing Per Version" href="publishing_per_version.html" />
+    <link rel="prev" title="Mono Vs Multi Package Repositories" href="mono_vs_multi_package_repositories.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> rez_docbot
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_documentation.html">User Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_documentation.html">Developer Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="developer_documentation.html#general-pages">General Pages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="authenticating.html">Authenticating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuring_rez_docbot.html">Configuring rez_docbot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mono_vs_multi_package_repositories.html">Mono Vs Multi Package Repositories</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Popular Publish Configurations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#dedicated-user-separate-repositories">Dedicated user &amp; separate repositories</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#dedicated-user-central-repository">Dedicated user &amp; central repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#same-user-same-repository">Same user &amp; same repository</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#final-thoughts">Final Thoughts</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="publishing_per_version.html">Publishing Per Version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_documentation.html#publisher-specific-pages">Publisher-Specific Pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">rez_docbot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="developer_documentation.html">Developer Documentation</a> &raquo;</li>
+      <li>Popular Publish Configurations</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/popular_publish_configurations.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="popular-publish-configurations">
+<h1>Popular Publish Configurations<a class="headerlink" href="#popular-publish-configurations" title="Permalink to this headline"></a></h1>
+<p>Like the saying “there’s more than one way to skin a cat”, there’s more than
+one way to set up documentation. We’ll define each term and then explain what
+those terms mean and how to set them up.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#dedicated-user-separate-repositories"><span class="std std-ref">Dedicated user &amp; separate repositories</span></a></p></li>
+<li><p><a class="reference internal" href="#dedicated-user-central-repository"><span class="std std-ref">Dedicated user &amp; central repository</span></a></p></li>
+<li><p><a class="reference internal" href="#same-user-same-repository"><span class="std std-ref">Same user &amp; same repository</span></a></p></li>
+</ul>
+<p>Some prefer to have a dedicated GitHub user / group / organization, with
+dedicated log-in / password credentials, to publish documentation into. Others
+prefer to keep it all within the same user, so that developers who already
+have access do a repository are guaranteed to have the same permissions
+in their documentation repositories.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Keep in mind that these configurations are not mutually exclusive.  In
+fact, since you can provide as many publishers as you want to
+<a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a>, you can have any combination of these configurations at
+any time! And if certain Rez packages need to be treated differently
+compared to others, you can override it at the package level to do
+different things. See <a class="reference internal" href="configuring_rez_docbot.html#per-package-configuration"><span class="std std-ref">Per-Package Configuration</span></a> for details.</p>
+</div>
+<section id="dedicated-user-separate-repositories">
+<span id="id1"></span><h2>Dedicated user &amp; separate repositories<a class="headerlink" href="#dedicated-user-separate-repositories" title="Permalink to this headline"></a></h2>
+<p>Imagine you’re working on 3 Rez packages (which may be in 3 separate
+repositories or one single repository, in subdirectories).</p>
+<p>e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">rez</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">package_a</span>
+<span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">rez</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">package_b</span>
+<span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">rez</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">package_c</span>
+</pre></div>
+</div>
+<p>It’s decided that users want each documentation to be listed using the package
+name. But they also don’t want that code to be committed to source code
+repositories like <code class="docutils literal notranslate"><span class="pre">rez-packages/package_a</span></code>. They want the documentation in
+another owner. So they make a new group / GitHub organization called
+“OurDocs” and make one repository per Rez package.</p>
+<p>e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">OurDocs</span><span class="o">/</span><span class="n">package_a</span>
+<span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">OurDocs</span><span class="o">/</span><span class="n">package_b</span>
+<span class="n">github</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">OurDocs</span><span class="o">/</span><span class="n">package_c</span>
+</pre></div>
+</div>
+<p>Here’s what such as set-up would look like, as a <a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;authentication&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;asdfasdf&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;MyUser&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="s2">&quot;gh-pages&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:OurDocs/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://OurDocs.github.io/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>When you publish your documentation, the documentation will be pushed to
+<code class="docutils literal notranslate"><span class="pre">&quot;git&#64;github.com:OurDocs/{package.name}&quot;</span></code> and be viewable at
+<code class="docutils literal notranslate"><span class="pre">&quot;https://OurDocs.github.io/{package.name}&quot;</span></code>.</p>
+<section id="pros">
+<h3>Pros<a class="headerlink" href="#pros" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Documentation is kept separate from the source repository (which makes source
+repositories more lightweight)</p></li>
+<li><p>A dedicated user for documentation means access / push permissions can be
+more easily controlled, per-user / per-group etc.</p></li>
+</ul>
+</section>
+<section id="cons">
+<h3>Cons<a class="headerlink" href="#cons" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>A repository is created per Rez package. If you have lots of Rez packages,
+that will make many repositories.</p></li>
+<li><p>Documentation may not be viewable / accessible to everyone, even if they are
+able to publish the documentation.</p></li>
+</ul>
+</section>
+</section>
+<section id="dedicated-user-central-repository">
+<span id="id2"></span><h2>Dedicated user &amp; central repository<a class="headerlink" href="#dedicated-user-central-repository" title="Permalink to this headline"></a></h2>
+<p>This variant is actually the same as <a class="reference internal" href="#dedicated-user-separate-repositories"><span class="std std-ref">Dedicated user &amp; separate repositories</span></a>. The only difference is that, instead of creating new
+repositories per-package, there’s a dedicated, single documentation repository
+and the documentation for all Rez packages live within it.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;authentication&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;asdfasdf&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;MyUser&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="s2">&quot;gh-pages&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;relative_path&quot;</span><span class="p">:</span> <span class="s2">&quot;packages/</span><span class="si">{package.name}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:OurDocs/all_documentation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://OurDocs.github.io/all_documentation&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>When you publish your documentation, the documentation will be pushed to
+<code class="docutils literal notranslate"><span class="pre">&quot;git&#64;github.com:OurDocs/all_documentation&quot;</span></code> and copied into a subdirectory
+based on <code class="docutils literal notranslate"><span class="pre">&quot;packages/{package.name}&quot;</span></code>. And then the documentation is viewable
+at <code class="docutils literal notranslate"><span class="pre">&quot;https://OurDocs.github.io/all_documentation/packages/{package.name}&quot;</span></code>.</p>
+<section id="id3">
+<h3>Pros<a class="headerlink" href="#id3" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Documentation is kept separate from the source repository (which makes source
+repositories more lightweight)</p></li>
+<li><p>A dedicated user for documentation means access / push permissions can be
+more easily controlled, per-user / per-group etc.</p></li>
+<li><p>Only one git repository is needed. All documentation lives there</p></li>
+</ul>
+</section>
+<section id="id4">
+<h3>Cons<a class="headerlink" href="#id4" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>That repository can get quite large over time, since it’ll be hosting the
+documentation for any package it’s meant to keep + its older versioned
+documentation.</p></li>
+<li><p>The view URL is now longer. From <code class="docutils literal notranslate"><span class="pre">&quot;https://OurDocs.github.io/{package.name}&quot;</span></code>.
+to <code class="docutils literal notranslate"><span class="pre">&quot;https://OurDocs.github.io/all_documentation/packages/{package.name}&quot;</span></code>.</p></li>
+<li><p>A repository is created per Rez package. If you have lots of Rez packages,
+that will make many repositories.</p></li>
+<li><p>Documentation may not be viewable / accessible to everyone, even if they are
+able to publish the documentation.</p></li>
+</ul>
+</section>
+</section>
+<section id="same-user-same-repository">
+<span id="id5"></span><h2>Same user &amp; same repository<a class="headerlink" href="#same-user-same-repository" title="Permalink to this headline"></a></h2>
+<p>Some people will prefer to not publish documentation as another, separate
+“OurDocs” user but instead re-use the current user and repository wherever the
+Rez package currently lives. This can be done, using the following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;authentication&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;asdfasdf&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;MyUser&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="s2">&quot;gh-pages&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://OurDocs.github.io/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Since <code class="docutils literal notranslate"><span class="pre">&quot;repository_uri&quot;</span></code> is blank, the package’s git push URL is queried and
+reused instead. The <code class="docutils literal notranslate"><span class="pre">&quot;gh-pages&quot;</span></code> branch is used to copy and push the
+documentation.</p>
+<section id="id6">
+<h3>Pros<a class="headerlink" href="#id6" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Anyone that has access to the repository should have access to view the documentation</p></li>
+<li><p>The original git repository is re-used. No new git repository is needed to
+host the documentation.</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>Cons<a class="headerlink" href="#id7" title="Permalink to this headline"></a></h3>
+<ul class="simple">
+<li><p>Committing documentation .html files with the source code in one repository</p></li>
+</ul>
+</section>
+</section>
+<section id="final-thoughts">
+<h2>Final Thoughts<a class="headerlink" href="#final-thoughts" title="Permalink to this headline"></a></h2>
+<p>Astute readers will see that these aren’t the only configurations which are
+possible. However these are typically the most popular ones.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="mono_vs_multi_package_repositories.html" class="btn btn-neutral float-left" title="Mono Vs Multi Package Repositories" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="publishing_per_version.html" class="btn btn-neutral float-right" title="Publishing Per Version" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ColinKennedy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

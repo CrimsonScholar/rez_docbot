@@ -1,0 +1,16 @@
+rez\_docbot
+===========
+
+.. toctree::
+   :maxdepth: 4
+
+   adapters <rez_docbot.adapters>
+   api <rez_docbot.api>
+   bases <rez_docbot.bases>
+   core <rez_docbot.core>
+   publishers <rez_docbot.publishers>
+
+.. automodule:: rez_docbot
+   :members:
+   :undoc-members:
+   :show-inheritance:

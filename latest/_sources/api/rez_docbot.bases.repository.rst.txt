@@ -1,0 +1,7 @@
+rez\_docbot.bases.repository
+----------------------------
+
+.. automodule:: rez_docbot.bases.repository
+   :members:
+   :undoc-members:
+   :show-inheritance:

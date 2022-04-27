@@ -1,0 +1,7 @@
+rez\_docbot.core.publisher\_
+----------------------------
+
+.. automodule:: rez_docbot.core.publisher_
+   :members:
+   :undoc-members:
+   :show-inheritance:

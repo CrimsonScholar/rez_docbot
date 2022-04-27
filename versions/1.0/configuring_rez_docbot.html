@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configuring rez_docbot &mdash; rez_docbot 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Mono Vs Multi Package Repositories" href="mono_vs_multi_package_repositories.html" />
+    <link rel="prev" title="Authenticating" href="authenticating.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> rez_docbot
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_documentation.html">User Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_documentation.html">Developer Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="developer_documentation.html#general-pages">General Pages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="authenticating.html">Authenticating</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Configuring rez_docbot</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#configurations">Configurations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#per-package-configuration">Per-Package Configuration</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="mono_vs_multi_package_repositories.html">Mono Vs Multi Package Repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="popular_publish_configurations.html">Popular Publish Configurations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="publishing_per_version.html">Publishing Per Version</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_documentation.html#publisher-specific-pages">Publisher-Specific Pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">rez_docbot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="developer_documentation.html">Developer Documentation</a> &raquo;</li>
+      <li>Configuring rez_docbot</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/configuring_rez_docbot.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="configuring-rez-docbot">
+<h1>Configuring rez_docbot<a class="headerlink" href="#configuring-rez-docbot" title="Permalink to this headline"></a></h1>
+<p>rez_docbot allows users to define multiple publish locations for documentation
+through configuration settings. The exact details of “what settings are allowed
+in each configuration” depends on the publisher. However, everything in this
+page is supported by all, current publisher types. If you want to read about
+per-publisher details, check out <a class="reference internal" href="publisher_types.html"><span class="doc">Publisher Types</span></a>.</p>
+<p>In general, users can define configuration settings in 1 of 2 ways:</p>
+<ul class="simple">
+<li><p>Globally, for all packages</p></li>
+<li><p><a class="reference internal" href="#per-package-configuration"><span class="std std-ref">Per-Package Configuration</span></a></p></li>
+</ul>
+<section id="configurations">
+<h2>Configurations<a class="headerlink" href="#configurations" title="Permalink to this headline"></a></h2>
+<p>These are the general, customizable settings for <a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a>. They affect
+anything from publish behavior, what folders end up getting written to disk,
+and where publish data is made available.</p>
+<section id="rez-docbot-publishers">
+<span id="id1"></span><h3>rez_docbot.publishers<a class="headerlink" href="#rez-docbot-publishers" title="Permalink to this headline"></a></h3>
+<p>This setting is where you define all publish destinations for documentation.
+You are free to create 1 or more publishers and each destination will be
+published to. Most of the time, users will only define a single publisher.
+However if you do make more than one publisher, note:</p>
+<ul class="simple">
+<li><p>The first publisher is special. All other publishers are considered fallbacks
+/ redundancy publishers.</p></li>
+<li><p>If you make more than one publisher, always place the most important
+publisher first.</p></li>
+</ul>
+<p>Here’s an example configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;authentication&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;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&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;Foo&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="s2">&quot;gh-pages&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:Foo/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://Foo.github.io/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This simple configuration carries the meaning of:</p>
+<ul>
+<li><p>For every Rez package</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Create a repository using the package’s family name</p></li>
+<li><p>Set it up for GitHub (<a class="reference external" href="https://pages.github.com">gh-pages</a>, <a class="reference external" href="https://github.blog/2009-12-29-bypassing-jekyll-on-github-pages/">.nojekyll</a>, etc)</p></li>
+<li><p>View the documentation at <code class="docutils literal notranslate"><span class="pre">https://Foo.github.io/{package.name}</span></code></p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+<p>This is a really simple example. You can nest multiple packages in the same
+repository, control how and when new documentation is generated, etc.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="popular_publish_configurations.html"><span class="doc">Popular Publish Configurations</span></a></p>
+<p><a class="reference internal" href="#publish-pattern"><span class="std std-ref">Control how new documentation is made</span></a></p>
+</div>
+</section>
+<section id="rez-docbot-publishers-commit-message">
+<h3>rez_docbot.publishers.*.commit_message<a class="headerlink" href="#rez-docbot-publishers-commit-message" title="Permalink to this headline"></a></h3>
+<p>When documentation is committed, this setting defines the message used for the
+git commit.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">'Added</span> <span class="pre">&quot;{package.name}&quot;</span> <span class="pre">documentation!'</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;commit_message&quot;</span><span class="p">:</span> <span class="s1">&#39;Added &quot;</span><span class="si">{package.name}</span><span class="s1">-</span><span class="si">{package.version}</span><span class="s1">&quot; documentation!&#39;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="rez-docbot-publishers-latest-folder">
+<span id="id2"></span><h3>rez_docbot.publishers.*.latest_folder<a class="headerlink" href="#rez-docbot-publishers-latest-folder" title="Permalink to this headline"></a></h3>
+<p>By default, <a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> tries to build 2 sets of documentation when
+you publish documentation for a new package version.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="getting_started.html#latest-documentation"><span class="std std-ref">Latest Documentation</span></a></p></li>
+<li><p><a class="reference internal" href="getting_started.html#versioned-documentation"><span class="std std-ref">Versioned Documentation</span></a></p></li>
+</ul>
+<p>This setting concerns <a class="reference internal" href="getting_started.html#latest-documentation"><span class="std std-ref">Latest Documentation</span></a>. Whatever text is used here
+will be the name of the folder where the most recent package’s documentation
+will live.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">&quot;latest&quot;</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;latest_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;latest&quot;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To <strong>disable</strong> the “latest” folder, simply set <code class="docutils literal notranslate"><span class="pre">&quot;latest_folder&quot;:</span> <span class="pre">&quot;&quot;</span></code>.</p>
+</div>
+</section>
+<section id="rez-docbot-publishers-publish-pattern">
+<span id="publish-pattern"></span><h3>rez_docbot.publishers.*.publish_pattern<a class="headerlink" href="#rez-docbot-publishers-publish-pattern" title="Permalink to this headline"></a></h3>
+<p>Depending on how a package is set up, you may want to only publish versioned
+documentation:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="publishing_per_version.html#publish-every-version"><span class="std std-ref">Publish Every Version</span></a></p></li>
+<li><p><a class="reference internal" href="publishing_per_version.html#publish-every-minor-major"><span class="std std-ref">Publish Every Minor / Major</span></a></p></li>
+<li><p><a class="reference internal" href="publishing_per_version.html#publish-every-major"><span class="std std-ref">Publish Every Major</span></a></p></li>
+</ul>
+<p><code class="docutils literal notranslate"><span class="pre">rez_docbot.publishers.*.publish_pattern</span></code> gives you more granular control
+over how packages publish.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">&quot;{package.version.major}.{package.version.minor}&quot;</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{package.version.major}</span><span class="s2">.</span><span class="si">{package.version.minor}</span><span class="s2">&quot;</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can also specify multiple publish patterns, which <a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> will
+try to match against when looking for pre-existing, versioned documentation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="s2">&quot;</span><span class="si">{package.version.major}</span><span class="s2">.</span><span class="si">{package.version.minor}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;</span><span class="si">{package.version.major}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>publish_patterns can also be regex as well, instead of a raw string.</p>
+</div>
+<p>If you never want to publish versioned folders, see
+<a class="reference internal" href="#rez-docbot-publishers-version-folder"><span class="std std-ref">rez_docbot.publishers.*.version_folder</span></a>.</p>
+</section>
+<section id="rez-docbot-publishers-relative-path">
+<h3>rez_docbot.publishers.*.relative_path<a class="headerlink" href="#rez-docbot-publishers-relative-path" title="Permalink to this headline"></a></h3>
+<p>By default when publishing documentation, it’s assumed that you want to publish
+to the root of the documentation repository.
+<code class="docutils literal notranslate"><span class="pre">rez_docbot.publishers.*.relative_path</span></code> allows users to publish documentation
+within a sub-folder.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">&quot;&quot;</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;relative_path&quot;</span><span class="p">:</span> <span class="s2">&quot;path/to/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:Foo/all_documentation&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://Foo.github.io/all_documentation&quot;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In the configuration above, <a class="reference internal" href="api/rez_docbot.core.preference.html#rez_docbot.core.preference.get_first_versioned_view_url" title="rez_docbot.core.preference.get_first_versioned_view_url"><code class="xref py py-func docutils literal notranslate"><span class="pre">preference.get_first_versioned_view_url()</span></code></a>
+would return
+<code class="docutils literal notranslate"><span class="pre">&quot;https://Foo.github.io/all_documentation/path/to/{package.name}&quot;</span></code>, to
+reflect not just the view URL but also relative sub-folder path.</p>
+</section>
+<section id="rez-docbot-publishers-repository-uri">
+<h3>rez_docbot.publishers.*.repository_uri<a class="headerlink" href="#rez-docbot-publishers-repository-uri" title="Permalink to this headline"></a></h3>
+<p>The remote where documentation will be cloned, committed, and pushed into.
+This is <strong>not</strong> the URL for viewing that documentation. For that, see
+<a class="reference internal" href="#rez-docbot-publishers-view-url"><span class="std std-ref">rez_docbot.publishers.*.view_url</span></a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:FakeUser/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.FakeUser.github.io/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="rez-docbot-publishers-required">
+<h3>rez_docbot.publishers.*.required<a class="headerlink" href="#rez-docbot-publishers-required" title="Permalink to this headline"></a></h3>
+<p>A setting which implies “fail execution if for some reason documentation could
+not be pushed / published”. Most of the time, you’ll probably want this to be
+True.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">True</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;required&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="rez-docbot-publishers-skip-existing-version">
+<h3>rez_docbot.publishers.*.skip_existing_version<a class="headerlink" href="#rez-docbot-publishers-skip-existing-version" title="Permalink to this headline"></a></h3>
+<p><a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> publishes for each new major + minor Rez package version, by
+default. Each patched version, if any, will overwrite an existing major + minor
+versioned documentation folder. If you don’t like this behavior, you can
+disable it using this setting.  That way, versioned documentation folders are
+immutable and cannot be changed due to later releases. Users must increment the
+minor / major to get new documentation.</p>
+<p>Generally, this setting isn’t expected to be used by most people.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">False</span></code></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;skip_existing_version&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="rez-docbot-publishers-version-folder">
+<span id="id3"></span><h3>rez_docbot.publishers.*.version_folder<a class="headerlink" href="#rez-docbot-publishers-version-folder" title="Permalink to this headline"></a></h3>
+<p>By default, <a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> tries to build 2 sets of documentation when
+you publish documentation for a new package version.</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="getting_started.html#latest-documentation"><span class="std std-ref">Latest Documentation</span></a></p></li>
+<li><p><a class="reference internal" href="getting_started.html#versioned-documentation"><span class="std std-ref">Versioned Documentation</span></a></p></li>
+</ul>
+<p>This setting concerns <a class="reference internal" href="getting_started.html#versioned-documentation"><span class="std std-ref">Versioned Documentation</span></a>. Whatever text is used
+here will be the name of the folder where all copied, versioned documentation
+will live.</p>
+<p><strong>Default</strong>: <code class="docutils literal notranslate"><span class="pre">&quot;versions&quot;</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;version_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;versions&quot;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>To <strong>disable</strong> the “versions” folder, simply set <code class="docutils literal notranslate"><span class="pre">&quot;version_folder&quot;:</span> <span class="pre">&quot;&quot;</span></code>.</p>
+</div>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p>Related API function: <a class="reference internal" href="api/rez_docbot.core.preference.html#rez_docbot.core.preference.get_first_versioned_view_url" title="rez_docbot.core.preference.get_first_versioned_view_url"><code class="xref py py-func docutils literal notranslate"><span class="pre">preference.get_first_versioned_view_url()</span></code></a></p>
+</div>
+<p>See <a class="reference internal" href="publishing_per_version.html"><span class="doc">Publishing Per Version</span></a> for details on controlling how often
+versioned documentation is generated.</p>
+</section>
+<section id="rez-docbot-publishers-view-url">
+<span id="id4"></span><h3>rez_docbot.publishers.*.view_url<a class="headerlink" href="#rez-docbot-publishers-view-url" title="Permalink to this headline"></a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">view_url</span></code> is the URL (or directory on-disk) to wherever documentation is
+expected to be viewed.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:FakeUser/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://www.FakeUser.github.io/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>In a typical documentation set up, you typically would push documentation to a
+remote location, like <code class="docutils literal notranslate"><span class="pre">&quot;git&#64;github.com:FakeUser/{package.name}&quot;</span></code> but then
+that documentation is viewable to the average user at
+<code class="docutils literal notranslate"><span class="pre">https://www.FakeUser.github.io/{package.name}&quot;</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>Tools such as <span class="xref std std-ref">rez_sphinx:rez_sphinx</span> rely on this URL being accurate
+in order to link Sphinx documentation to Rez. This is done via the
+<a class="reference internal" href="api/rez_docbot.core.preference.html#rez_docbot.core.preference.get_first_versioned_view_url" title="rez_docbot.core.preference.get_first_versioned_view_url"><code class="xref py py-func docutils literal notranslate"><span class="pre">preference.get_first_versioned_view_url()</span></code></a>. In short, absolutely make
+sure this setting is accurate!</p>
+</div>
+</section>
+</section>
+<section id="per-package-configuration">
+<span id="id5"></span><h2>Per-Package Configuration<a class="headerlink" href="#per-package-configuration" title="Permalink to this headline"></a></h2>
+<p>All settings on this page show how to define these settings globally. However
+they can also be overwritten at the <a class="reference external" href="https://github.com/nerdvegas/rez/wiki/Package-Commands">package.py</a> level.</p>
+<p>This is how a setting may look, globally:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... more settings ...</span>
+                <span class="s2">&quot;latest_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;latest&quot;</span><span class="p">,</span>
+                <span class="c1"># ... more settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>And here’s the same setting, as part of a <a class="reference external" href="https://github.com/nerdvegas/rez/wiki/Package-Commands">package.py</a>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;some_package&quot;</span>
+
+<span class="n">version</span> <span class="s2">&quot;1.2.3&quot;</span>
+
+<span class="n">rez_docbot_configuration</span>  <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="c1"># ... more settings ...</span>
+            <span class="s2">&quot;latest_folder&quot;</span><span class="p">:</span> <span class="s2">&quot;latest&quot;</span><span class="p">,</span>
+            <span class="c1"># ... more settings ...</span>
+        <span class="p">},</span>
+    <span class="p">],</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="authenticating.html" class="btn btn-neutral float-left" title="Authenticating" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="mono_vs_multi_package_repositories.html" class="btn btn-neutral float-right" title="Mono Vs Multi Package Repositories" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ColinKennedy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

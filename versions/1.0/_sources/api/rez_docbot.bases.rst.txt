@@ -1,0 +1,13 @@
+rez\_docbot.bases
+=================
+
+.. toctree::
+   :maxdepth: 4
+
+   base <rez_docbot.bases.base>
+   repository <rez_docbot.bases.repository>
+
+.. automodule:: rez_docbot.bases
+   :members:
+   :undoc-members:
+   :show-inheritance:

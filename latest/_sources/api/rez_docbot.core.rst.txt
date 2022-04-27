@@ -1,0 +1,16 @@
+rez\_docbot.core
+================
+
+.. toctree::
+   :maxdepth: 4
+
+   common <rez_docbot.core.common>
+   exception <rez_docbot.core.exception>
+   preference <rez_docbot.core.preference>
+   publisher_ <rez_docbot.core.publisher_>
+   schema_type <rez_docbot.core.schema_type>
+
+.. automodule:: rez_docbot.core
+   :members:
+   :undoc-members:
+   :show-inheritance:

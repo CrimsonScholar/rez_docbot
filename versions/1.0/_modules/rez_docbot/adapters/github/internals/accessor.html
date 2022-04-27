@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rez_docbot.adapters.github.internals.accessor &mdash; rez_docbot 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../../../" id="documentation_options" src="../../../../../_static/documentation_options.js"></script>
+        <script src="../../../../../_static/jquery.js"></script>
+        <script src="../../../../../_static/underscore.js"></script>
+        <script src="../../../../../_static/doctools.js"></script>
+    <script src="../../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../../../index.html" class="icon icon-home"> rez_docbot
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../user_documentation.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../developer_documentation.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../../api/modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../../index.html">rez_docbot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../../../index.html">Module code</a> &raquo;</li>
+      <li>rez_docbot.adapters.github.internals.accessor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rez_docbot.adapters.github.internals.accessor</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The module responsible for authenticating to a remote `GitHub`_ server.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">re</span>
+
+<span class="kn">import</span> <span class="nn">github3</span>
+<span class="kn">import</span> <span class="nn">schema</span>
+<span class="kn">from</span> <span class="nn">six.moves</span> <span class="kn">import</span> <span class="n">urllib_parse</span>
+
+<span class="kn">from</span> <span class="nn">....bases</span> <span class="kn">import</span> <span class="n">base</span>
+<span class="kn">from</span> <span class="nn">....core</span> <span class="kn">import</span> <span class="n">exception</span><span class="p">,</span> <span class="n">schema_type</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">handler</span>
+
+<span class="n">_PASSWORD</span> <span class="o">=</span> <span class="s2">&quot;password&quot;</span>
+<span class="n">_TOKEN</span> <span class="o">=</span> <span class="s2">&quot;token&quot;</span>
+<span class="n">_USER</span> <span class="o">=</span> <span class="s2">&quot;user&quot;</span>
+
+<span class="n">_PUBLIC_GITHUB</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^www\.github\.com$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+<span class="n">_PUBLIC_GITHUB_SSH</span> <span class="o">=</span> <span class="s2">&quot;git@github.com:&quot;</span>
+
+<span class="n">_COMMON_USER</span> <span class="o">=</span> <span class="p">{</span><span class="n">_USER</span><span class="p">:</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">NON_EMPTY_STR</span><span class="p">}</span>
+
+<span class="n">_ACCESS_TOKEN</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">GITHUB_ACCESS_TOKEN</span><span class="p">}</span>
+<span class="n">_ACCESS_TOKEN</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">_COMMON_USER</span><span class="p">)</span>
+<span class="n">_USER_PASSWORD_PAIR</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">_PASSWORD</span><span class="p">:</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">NON_EMPTY_STR</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">_ACCESS_TOKEN_SCHEMA</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span><span class="n">_ACCESS_TOKEN</span><span class="p">)</span>
+<span class="n">_USER_PASSWORD_PAIR_SCHEMA</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span><span class="n">_USER_PASSWORD_PAIR</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="AccessToken"><a class="viewcode-back" href="../../../../../api/rez_docbot.adapters.github.internals.accessor.html#rez_docbot.adapters.github.internals.accessor.AccessToken">[docs]</a><span class="k">class</span> <span class="nc">AccessToken</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Authenticator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Allow the user to authenticate with a username + `GitHub access token`_.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="AccessToken.authenticate"><a class="viewcode-back" href="../../../../../api/rez_docbot.adapters.github.internals.accessor.html#rez_docbot.adapters.github.internals.accessor.AccessToken.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a valid handle to the remote ``uri``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            uri (str):</span>
+<span class="sd">                An addressable website. e.g. ``&quot;https://www.github.com/Foo/bar&quot;``</span>
+<span class="sd">                or ``&quot;git@github.com:Foo/bar&quot;``</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            NoRemoteFound:</span>
+<span class="sd">                When bad user / token data is given, resulting in some unhandled error.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Handler: The authenticated instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_is_public_github</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
+            <span class="n">raw_handler</span> <span class="o">=</span> <span class="n">github3</span><span class="o">.</span><span class="n">login</span><span class="p">(</span>
+                <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_USER</span><span class="p">],</span>
+                <span class="n">token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_TOKEN</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_handler</span> <span class="o">=</span> <span class="n">github3</span><span class="o">.</span><span class="n">enterprise_login</span><span class="p">(</span>
+                <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_USER</span><span class="p">],</span>
+                <span class="n">token</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_TOKEN</span><span class="p">],</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">raw_handler</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">NoRemoteFound</span><span class="p">(</span><span class="s2">&quot;No remote handler could be found.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="n">GitHub</span><span class="p">(</span><span class="n">raw_handler</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AccessToken.validate"><a class="viewcode-back" href="../../../../../api/rez_docbot.adapters.github.internals.accessor.html#rez_docbot.adapters.github.internals.accessor.AccessToken.validate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert ``data`` to something this class can use.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict[str, object]): The username / password details to store.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            AccessToken: The created instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_ACCESS_TOKEN_SCHEMA</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div></div>
+
+
+<div class="viewcode-block" id="UserPassword"><a class="viewcode-back" href="../../../../../api/rez_docbot.adapters.github.internals.accessor.html#rez_docbot.adapters.github.internals.accessor.UserPassword">[docs]</a><span class="k">class</span> <span class="nc">UserPassword</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">Authenticator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Allow the user to authenticate with a raw username + password.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="UserPassword.authenticate"><a class="viewcode-back" href="../../../../../api/rez_docbot.adapters.github.internals.accessor.html#rez_docbot.adapters.github.internals.accessor.UserPassword.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">uri</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a valid handle to the remote ``uri``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            uri (str):</span>
+<span class="sd">                An addressable website. e.g. ``&quot;https://www.github.com/Foo/bar&quot;``</span>
+<span class="sd">                or ``&quot;git@github.com:Foo/bar&quot;``</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Handler: The authenticated instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">_is_public_github</span><span class="p">(</span><span class="n">uri</span><span class="p">):</span>
+            <span class="n">raw_handler</span> <span class="o">=</span> <span class="n">github3</span><span class="o">.</span><span class="n">login</span><span class="p">(</span>
+                <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_USER</span><span class="p">],</span>
+                <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_PASSWORD</span><span class="p">],</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">raw_handler</span> <span class="o">=</span> <span class="n">github3</span><span class="o">.</span><span class="n">enterprise_login</span><span class="p">(</span>
+                <span class="n">username</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_USER</span><span class="p">],</span>
+                <span class="n">password</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_PASSWORD</span><span class="p">],</span>
+                <span class="n">url</span><span class="o">=</span><span class="n">uri</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">handler</span><span class="o">.</span><span class="n">GitHub</span><span class="p">(</span><span class="n">raw_handler</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="UserPassword.validate"><a class="viewcode-back" href="../../../../../api/rez_docbot.adapters.github.internals.accessor.html#rez_docbot.adapters.github.internals.accessor.UserPassword.validate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Convert ``data`` to something this class can use.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict[str, object]): The username / password details to store.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            UserPassword: The created instance.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">_USER_PASSWORD_PAIR_SCHEMA</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">))</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_is_public_github</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Check if ``url`` points to public `GitHub`_.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url (str):</span>
+<span class="sd">            An addressable website. e.g. ``&quot;https://www.github.com/Foo/bar&quot;``</span>
+<span class="sd">            or ``&quot;git@github.com:Foo/bar&quot;``</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool:</span>
+<span class="sd">            If ``url`` is an `GitHub Enterprise`_ website, return False. If</span>
+<span class="sd">            not, return True.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">url</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_PUBLIC_GITHUB_SSH</span><span class="p">):</span>
+        <span class="c1"># ``url`` is defined via SSH</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="c1"># ``url`` is likely a http(s) URL</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">urllib_parse</span><span class="o">.</span><span class="n">urlparse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_PUBLIC_GITHUB</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">netloc</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ColinKennedy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

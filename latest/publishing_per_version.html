@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Publishing Per Version &mdash; rez_docbot 1.0.0 documentation</title>
+      <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="GitHub Details" href="github_details.html" />
+    <link rel="prev" title="Popular Publish Configurations" href="popular_publish_configurations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="index.html" class="icon icon-home"> rez_docbot
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="user_documentation.html">User Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="developer_documentation.html">Developer Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="developer_documentation.html#general-pages">General Pages</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="authenticating.html">Authenticating</a></li>
+<li class="toctree-l3"><a class="reference internal" href="configuring_rez_docbot.html">Configuring rez_docbot</a></li>
+<li class="toctree-l3"><a class="reference internal" href="mono_vs_multi_package_repositories.html">Mono Vs Multi Package Repositories</a></li>
+<li class="toctree-l3"><a class="reference internal" href="popular_publish_configurations.html">Popular Publish Configurations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Publishing Per Version</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#publish-every-version">Publish Every Version</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#publish-every-major">Publish Every Major</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#publish-every-minor-major">Publish Every Minor / Major</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#custom-publish-version">Custom Publish Version</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="developer_documentation.html#publisher-specific-pages">Publisher-Specific Pages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">rez_docbot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="developer_documentation.html">Developer Documentation</a> &raquo;</li>
+      <li>Publishing Per Version</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/publishing_per_version.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="publishing-per-version">
+<h1>Publishing Per Version<a class="headerlink" href="#publishing-per-version" title="Permalink to this headline"></a></h1>
+<p>By default, <a class="reference internal" href="user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> assumes that you want to publish new
+documentation for each <code class="docutils literal notranslate"><span class="pre">{version.major}.{version.minor}</span></code>. This means that
+patches will simply overwrite an existing minor’s documentation, instead of
+creating completely new documentation per-version.</p>
+<p>While this generates less duplicate documentation over time, some users may
+want 1-to-1 parity between every version and documentation. Or they may be
+authoring a project which doesn’t use <a class="reference external" href="https://semver.org">SemVer</a>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>This feature is only available for the publishers which support it.
+rez_docbot’s default publishers all support it. See <a class="reference internal" href="publisher_types.html"><span class="doc">Publisher Types</span></a>
+to confirm that the publisher that you plan to use supports it!</p>
+</div>
+<section id="publish-every-version">
+<span id="id1"></span><h2>Publish Every Version<a class="headerlink" href="#publish-every-version" title="Permalink to this headline"></a></h2>
+<p>You can specify “please build documentation for all package versions” with this
+configuration:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... More publisher settings ...</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># &lt;-- setting empty means &quot;publish every version&quot;</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="c1"># ... More publisher settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here’s a more complete example of the same idea:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;authentication&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;token&quot;</span><span class="p">:</span> <span class="s2">&quot;asdfasdf&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">:</span> <span class="s2">&quot;MyUser&quot;</span><span class="p">},</span>
+                <span class="s2">&quot;branch&quot;</span><span class="p">:</span> <span class="s2">&quot;gh-pages&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># &lt;-- setting empty means &quot;publish every version&quot;</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;repository_uri&quot;</span><span class="p">:</span> <span class="s2">&quot;git@github.com:MyUser/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;view_url&quot;</span><span class="p">:</span> <span class="s2">&quot;https://MyUser.github.io/</span><span class="si">{package.name}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="publish-every-major">
+<span id="id2"></span><h2>Publish Every Major<a class="headerlink" href="#publish-every-major" title="Permalink to this headline"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... More publisher settings ...</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{package.version.major}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="c1"># ... More publisher settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<section id="publish-every-minor-major">
+<span id="id3"></span><h2>Publish Every Minor / Major<a class="headerlink" href="#publish-every-minor-major" title="Permalink to this headline"></a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This behavior is the default publish pattern. You don’t need to set the publish pattern explicitly.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... More publisher settings ...</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;</span><span class="si">{package.version.major}</span><span class="s2">.</span><span class="si">{package.version.minor}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="c1"># ... More publisher settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>See this other page, <a class="reference internal" href="configuring_rez_docbot.html#publish-pattern"><span class="std std-ref">rez_docbot.publishers.*.publish_pattern</span></a>, for details.</p>
+</section>
+<section id="custom-publish-version">
+<h2>Custom Publish Version<a class="headerlink" href="#custom-publish-version" title="Permalink to this headline"></a></h2>
+<p>It’s also worth noting that <code class="docutils literal notranslate"><span class="pre">&quot;publish_pattern&quot;</span></code> can take any regex string or
+compiled regex.</p>
+<p><code class="docutils literal notranslate"><span class="pre">&quot;publish_pattern&quot;:</span> <span class="pre">&quot;.+&quot;</span></code> is the same as <code class="docutils literal notranslate"><span class="pre">&quot;publish_pattern&quot;:</span> <span class="pre">&quot;&quot;</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">re</span>
+
+<span class="n">optionvars</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rez_docbot&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;publishers&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="c1"># ... More publisher settings ...</span>
+                <span class="s2">&quot;publish_pattern&quot;</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;anything here&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;publisher&quot;</span><span class="p">:</span> <span class="s2">&quot;github&quot;</span><span class="p">,</span>
+                <span class="c1"># ... More publisher settings ...</span>
+            <span class="p">},</span>
+        <span class="p">],</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>With these options, you should be able to express any type of version
+publishing scheme.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="popular_publish_configurations.html" class="btn btn-neutral float-left" title="Popular Publish Configurations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="github_details.html" class="btn btn-neutral float-right" title="GitHub Details" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ColinKennedy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

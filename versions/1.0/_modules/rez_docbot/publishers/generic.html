@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rez_docbot.publishers.generic &mdash; rez_docbot 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../../../index.html" class="icon icon-home"> rez_docbot
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_documentation.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_documentation.html">Developer Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">rez_docbot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      <li>rez_docbot.publishers.generic</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for rez_docbot.publishers.generic</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;A wrapper class which interacts with the git repositories.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">atexit</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+<span class="kn">import</span> <span class="nn">tempfile</span>
+
+<span class="kn">import</span> <span class="nn">giturlparse</span>
+<span class="kn">import</span> <span class="nn">schema</span>
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">from</span> <span class="nn">rez.vendor.version</span> <span class="kn">import</span> <span class="n">version</span> <span class="k">as</span> <span class="n">version_</span>
+
+<span class="kn">from</span> <span class="nn">..bases</span> <span class="kn">import</span> <span class="n">base</span> <span class="k">as</span> <span class="n">base_</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">common</span><span class="p">,</span> <span class="n">exception</span><span class="p">,</span> <span class="n">schema_type</span>
+
+<span class="n">_BRANCH</span> <span class="o">=</span> <span class="s2">&quot;branch&quot;</span>
+<span class="n">_COMMIT_MESSAGE</span> <span class="o">=</span> <span class="s2">&quot;commit_message&quot;</span>
+<span class="n">_LATEST_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;latest_folder&quot;</span>
+<span class="n">_PUBLISH_PATTERN</span> <span class="o">=</span> <span class="s2">&quot;publish_pattern&quot;</span>
+<span class="n">_RELATIVE_PATH</span> <span class="o">=</span> <span class="s2">&quot;relative_path&quot;</span>
+<span class="n">_REPOSITORY_URI</span> <span class="o">=</span> <span class="s2">&quot;repository_uri&quot;</span>
+<span class="n">_REQUIRED</span> <span class="o">=</span> <span class="s2">&quot;required&quot;</span>
+<span class="n">_SKIP_EXISTING_VERSION</span> <span class="o">=</span> <span class="s2">&quot;skip_existing_version&quot;</span>
+<span class="n">_VERSION_FOLDER</span> <span class="o">=</span> <span class="s2">&quot;version_folder&quot;</span>
+<span class="n">_VIEW_URL</span> <span class="o">=</span> <span class="s2">&quot;view_url&quot;</span>
+
+<span class="n">_LOGGER</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="c1"># Reference: https://stackoverflow.com/a/40972959/3626104</span>
+<span class="n">_CURLIES</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\{(.*?)\}&quot;</span><span class="p">)</span>
+
+<span class="n">_GIT_HEADLESS_REPOSITORY_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;.git&quot;</span>
+
+<span class="n">AUTHENICATION</span> <span class="o">=</span> <span class="s2">&quot;authentication&quot;</span>
+
+
+<div class="viewcode-block" id="GitPublisher"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher">[docs]</a><span class="k">class</span> <span class="nc">GitPublisher</span><span class="p">(</span><span class="n">base_</span><span class="o">.</span><span class="n">Publisher</span><span class="p">):</span>  <span class="c1"># pylint: disable=abstract-method</span>
+    <span class="sd">&quot;&quot;&quot;The wrapper class which interacts with the git repositories.</span>
+
+<span class="sd">    It also handles cloning and pushing to remote repositories, like `GitHub`_.</span>
+
+<span class="sd">    .. important::</span>
+
+<span class="sd">        This class is a boilerplate for other classes to subclass and extend.</span>
+<span class="sd">        It is not meant to be used on its own.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">package</span><span class="p">,</span> <span class="n">handler</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Store the information related to publishing.</span>
+
+<span class="sd">        The ``data`` is assumed to be already validated. See</span>
+<span class="sd">        :meth:`.base.GitPublisher.validate`.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict[str, object]):</span>
+<span class="sd">                Each git / remote data to save.</span>
+<span class="sd">            package (rez.packages.Package):</span>
+<span class="sd">                The object to publish.</span>
+<span class="sd">            handler (Handler, optional):</span>
+<span class="sd">                This object handles all VCS related operations. Cloning,</span>
+<span class="sd">                adding, committing, pushing, etc. It&#39;s not required to</span>
+<span class="sd">                instantiate this object but must exist before</span>
+<span class="sd">                :meth:`.Publisher.quick_publish` can be called.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">GitPublisher</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">package</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span> <span class="o">=</span> <span class="n">handler</span>
+
+<div class="viewcode-block" id="GitPublisher.validate"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.validate">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">validate</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">package</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Ensure ``data`` can be used by this class.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            data (dict[str, object]): Each git / remote data to save.</span>
+<span class="sd">            package (rez.packages.Package): The object to publish.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            dict[str, object]: The validated content from ``data``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">validated</span> <span class="o">=</span> <span class="n">schema</span><span class="o">.</span><span class="n">Schema</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_get_schema</span><span class="p">())</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">validated</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_has_existing_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">version</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check if ``version`` exists as a folder in ``names``.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            version (str):</span>
+<span class="sd">                Some Rez source package version number. e.g. ``&quot;1.2.3&quot;``.</span>
+<span class="sd">            names (list[str]):</span>
+<span class="sd">                The names of each existing version publish folder. e.g.</span>
+<span class="sd">                ``[&quot;1.0&quot;, &quot;1.1&quot;, &quot;1.2&quot;]``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: If ``version`` already exists, return True.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">names</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">for</span> <span class="n">searcher</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_publish_pattern_searchers</span><span class="p">():</span>
+            <span class="n">package_match</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">package_match</span><span class="p">:</span>
+                <span class="n">_LOGGER</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="s1">&#39;Searcher &quot;</span><span class="si">%s</span><span class="s1">&quot; could not match package &quot;</span><span class="si">%s</span><span class="s1">&quot; version.&#39;</span><span class="p">,</span>
+                    <span class="n">searcher</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+                    <span class="n">version</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">package_version</span> <span class="o">=</span> <span class="n">package_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+                <span class="n">version_folder_match</span> <span class="o">=</span> <span class="n">searcher</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">version_folder_match</span><span class="p">:</span>
+                    <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="s1">&#39;Folder &quot;</span><span class="si">%s</span><span class="s1">&quot; did not match &quot;</span><span class="si">%s</span><span class="s1">&quot; pattern.&#39;</span><span class="p">,</span>
+                        <span class="n">name</span><span class="p">,</span>
+                        <span class="n">searcher</span><span class="o">.</span><span class="n">pattern</span><span class="p">,</span>
+                    <span class="p">)</span>
+
+                    <span class="k">continue</span>
+
+                <span class="k">if</span> <span class="n">version_folder_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="n">package_version</span><span class="p">:</span>
+                    <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Existing version folder, &quot;</span><span class="si">%s</span><span class="s1">&quot; was found.&#39;</span><span class="p">)</span>
+
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_follow_cloned_repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clone the documentation repository and get the path to the documentation.</span>
+
+<span class="sd">        The documentation may be located that the root of the clone repository</span>
+<span class="sd">        or a folder within it. If it&#39;s an inner folder, create the folder +</span>
+<span class="sd">        return it.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            repository (BaseRepository): An interface to work with git.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The created folder where all documentation for the package must go.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">get_root</span><span class="p">()</span>
+        <span class="n">inner_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_RELATIVE_PATH</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inner_path</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">root</span>
+
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">normcase</span><span class="p">(</span><span class="n">inner_path</span><span class="p">)</span>
+        <span class="n">normalized</span> <span class="o">=</span> <span class="n">normalized</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+        <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">normalized</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">directory</span>
+
+    <span class="k">def</span> <span class="nf">_get_branch_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Get the defined branch name, if any.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_BRANCH</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_commit_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Use this message whenever new documentation is pushed to the remote.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_COMMIT_MESSAGE</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_latest_version_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">versioned</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Find the latest versioned folder within ``versioned``, if any.</span>
+
+<span class="sd">        If ``versioned`` was just recently created, it won&#39;t have any existing</span>
+<span class="sd">        version folders.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            versioned (str):</span>
+<span class="sd">                The absolute directory where all versioned documentation lives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            rez.vendor.version.version.Version or NoneType:</span>
+<span class="sd">                The found, latest version folder, if any.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">searchers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_publish_pattern_searchers</span><span class="p">()</span>
+        <span class="n">versions</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">versioned</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">searcher</span> <span class="ow">in</span> <span class="n">searchers</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">searcher</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+                    <span class="n">versions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">version_</span><span class="o">.</span><span class="n">Version</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">versions</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">versions</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_publish_pattern_searchers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get a callable function used to &quot;find&quot; versioned publish directories.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[callable[str] -&gt; object]: The found function.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">temporary_token</span> <span class="o">=</span> <span class="s2">&quot;ctavasd&quot;</span>  <span class="c1"># Some random string to replace later</span>
+
+        <span class="k">for</span> <span class="n">expression_or_pattern</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_PUBLISH_PATTERN</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">expression_or_pattern</span><span class="p">,</span> <span class="s2">&quot;match&quot;</span><span class="p">):</span>
+                <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">expression_or_pattern</span><span class="p">)</span>
+
+                <span class="k">continue</span>
+
+            <span class="n">temporary_pattern</span> <span class="o">=</span> <span class="n">_CURLIES</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">temporary_token</span><span class="p">,</span> <span class="n">expression_or_pattern</span><span class="p">)</span>
+            <span class="n">escaped</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">temporary_pattern</span><span class="p">)</span>
+
+            <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">escaped</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">temporary_token</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;[\d\w]+&quot;</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">def</span> <span class="nf">_get_repository_details</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;RepositoryDetails: Get all repository data (URL, group name, etc).&quot;&quot;&quot;</span>
+        <span class="n">group</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resolved_group</span><span class="p">()</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resolved_repository_name</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">common</span><span class="o">.</span><span class="n">RepositoryDetails</span><span class="p">(</span>
+            <span class="n">group</span><span class="p">,</span> <span class="n">repository</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resolved_repository_uri</span><span class="p">()</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_resolved_group</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the group needed for this package.</span>
+
+<span class="sd">        Often times, the group name is some fixed `GitHub organization`_, or</span>
+<span class="sd">        user name. However there&#39;s a chance it could contain parts of the Rez</span>
+<span class="sd">        package. Just in case, we format it, prior to returning.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The generated git &quot;group&quot; name.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_REPOSITORY_URI</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="n">schema_type</span><span class="o">.</span><span class="n">GROUP</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="n">push_url</span> <span class="o">=</span> <span class="n">item</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">_parse_url_owner</span><span class="p">(</span><span class="n">push_url</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">item</span>
+
+        <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_resolved_publish_pattern</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the version folder name, using :ref:`publish_pattern`.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If the current Rez package has no version.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str:</span>
+<span class="sd">                A publish pattern for the current package. e.g. the real Rez</span>
+<span class="sd">                package version could be ``&quot;1.2.3&quot;`` but the default publish</span>
+<span class="sd">                pattern would return ``&quot;1.2&quot;``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">expression</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_PUBLISH_PATTERN</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">expression</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+
+        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">version</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s1">&#39;Package &quot;</span><span class="si">{self._package}</span><span class="s1">&quot; has no version!&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">match</span> <span class="o">=</span> <span class="n">expression</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">version</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s1">&#39;Version &quot;</span><span class="si">{version}</span><span class="s1">&quot; did not match pattern, &quot;</span><span class="si">{expression.pattern}</span><span class="s1">&quot;.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">version</span><span class="o">=</span><span class="n">version</span><span class="p">,</span> <span class="n">expression</span><span class="o">=</span><span class="n">expression</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_resolved_repository_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get the URL pointing to the documentation repository.</span>
+
+<span class="sd">        If the URL contains {}s, like ``{package.name}``, expand them using the</span>
+<span class="sd">        currently-tracked Package.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str:</span>
+<span class="sd">                The final, resolved URL. e.g. If the full URL is</span>
+<span class="sd">                ``&quot;git@github.com:Foo/bar.git&quot;``, then this function would</span>
+<span class="sd">                return ``&quot;bar&quot;``.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_REPOSITORY_URI</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">schema_type</span><span class="o">.</span><span class="n">REPOSITORY</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="n">push_url</span> <span class="o">=</span> <span class="n">item</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">_parse_url_repository</span><span class="p">(</span><span class="n">push_url</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">item</span>
+
+        <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_schema</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;dict[object, object]: The required / optional structure for this instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="n">AUTHENICATION</span><span class="p">:</span> <span class="n">schema</span><span class="o">.</span><span class="n">Use</span><span class="p">(</span><span class="n">_validate_authenticator</span><span class="p">),</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span>
+                <span class="n">_COMMIT_MESSAGE</span><span class="p">,</span>
+                <span class="n">default</span><span class="o">=</span><span class="s1">&#39;Added &quot;</span><span class="si">{package.name}</span><span class="s1">&quot; documentation!&#39;</span><span class="p">,</span>
+            <span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">_REPOSITORY_URI</span><span class="p">:</span> <span class="n">schema</span><span class="o">.</span><span class="n">Or</span><span class="p">(</span>
+                <span class="n">schema_type</span><span class="o">.</span><span class="n">URL</span><span class="p">,</span>
+                <span class="n">schema_type</span><span class="o">.</span><span class="n">SSH</span><span class="p">,</span>
+                <span class="n">schema_type</span><span class="o">.</span><span class="n">DIRECTORY</span><span class="p">,</span>
+                <span class="n">schema_type</span><span class="o">.</span><span class="n">DEFER_REPOSITORY</span><span class="p">,</span>  <span class="c1"># Get the package&#39;s repository, instead</span>
+            <span class="p">),</span>
+            <span class="n">_VIEW_URL</span><span class="p">:</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">VIEW_URL</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_BRANCH</span><span class="p">):</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">NON_EMPTY_STR</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_LATEST_FOLDER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;latest&quot;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span>
+                <span class="n">_PUBLISH_PATTERN</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="n">schema_type</span><span class="o">.</span><span class="n">DEFAULT_PUBLISH_PATTERN</span><span class="p">]</span>
+            <span class="p">):</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">PUBLISH_PATTERNS</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_RELATIVE_PATH</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span> <span class="n">schema_type</span><span class="o">.</span><span class="n">URL_SUBDIRECTORY</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_REQUIRED</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_SKIP_EXISTING_VERSION</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span> <span class="nb">bool</span><span class="p">,</span>
+            <span class="n">schema</span><span class="o">.</span><span class="n">Optional</span><span class="p">(</span><span class="n">_VERSION_FOLDER</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;versions&quot;</span><span class="p">):</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_allow_latest_publishes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bool: If the publisher can generate a &quot;latest&quot; documentation folder.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_LATEST_FOLDER</span><span class="p">])</span>
+
+    <span class="k">def</span> <span class="nf">_copy_documentation_if_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documentation</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Possibly copy the contents of ``documentation`` into ``root``.</span>
+
+<span class="sd">        Whether the ``documentation`` is copied or not is dependent on these factors:</span>
+
+<span class="sd">        - Is the user back-patching? If yes ...</span>
+
+<span class="sd">            - make a :ref:`version folder` if one doesn&#39;t already exist</span>
+<span class="sd">            - the :ref:`latest folder` is left un-touched</span>
+
+<span class="sd">        - Does a :ref:`version folder` already exist for the package?</span>
+
+<span class="sd">            - If yes, skip updating both :ref:`version folder` and :ref:`latest folder`</span>
+
+<span class="sd">        So as you can see, there&#39;s no guarantee the files will be copied.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            documentation (str):</span>
+<span class="sd">                The absolute directory to built documentation on-disk.</span>
+<span class="sd">            root (str):</span>
+<span class="sd">                The absolute directory where all documentation for the current</span>
+<span class="sd">                Rez package is expected to be copied to.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: If any documentation was copied.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">latest_folder_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_LATEST_FOLDER</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">latest_folder_name</span><span class="p">:</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="n">root</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">latest</span> <span class="o">=</span> <span class="n">_create_subdirectory</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">latest_folder_name</span><span class="p">)</span>
+
+        <span class="n">version_copied</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">versions_allowed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allow_versioned_publishes</span><span class="p">()</span>
+        <span class="n">versioned</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">versions_allowed</span><span class="p">:</span>
+            <span class="n">version_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_VERSION_FOLDER</span><span class="p">]</span>
+
+            <span class="n">versioned</span> <span class="o">=</span> <span class="n">_create_subdirectory</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">version_folder</span><span class="p">)</span>
+            <span class="n">version_copied</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_into_versioned_if_needed</span><span class="p">(</span>
+                <span class="n">documentation</span><span class="p">,</span> <span class="n">versioned</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Version publishing will be skipped, because it is disabled.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">versions_allowed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">version_copied</span><span class="p">:</span>
+            <span class="c1"># There&#39;s no case in which the :ref:`latest folder` would be</span>
+            <span class="c1"># updated that didn&#39;t also require a :ref:`version folder` update.</span>
+            <span class="c1">#</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">latest_copied</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_into_latest_if_needed</span><span class="p">(</span>
+            <span class="n">documentation</span><span class="p">,</span> <span class="n">latest</span><span class="p">,</span> <span class="n">versioned</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">version_copied</span> <span class="ow">or</span> <span class="n">latest_copied</span>
+
+    <span class="k">def</span> <span class="nf">_copy_into_latest_if_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documentation</span><span class="p">,</span> <span class="n">latest</span><span class="p">,</span> <span class="n">versioned</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy ``documentation`` to the :ref:`latest folder`, if needed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            documentation (str):</span>
+<span class="sd">                The absolute directory to built documentation on-disk.</span>
+<span class="sd">            latest (str):</span>
+<span class="sd">                The absolute directory which always points to the latest Rez</span>
+<span class="sd">                package documentation.</span>
+<span class="sd">            versioned (str):</span>
+<span class="sd">                The absolute directory where all versioned documentation lives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: If ``documentation`` was copied into the :ref:`latest folder`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">latest_previous_publish</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_latest_version_folder</span><span class="p">(</span><span class="n">versioned</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">version</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">latest_previous_publish</span> <span class="ow">or</span> <span class="n">latest_previous_publish</span> <span class="o">&lt;=</span> <span class="n">version</span><span class="p">:</span>
+            <span class="n">_copy_into</span><span class="p">(</span><span class="n">documentation</span><span class="p">,</span> <span class="n">latest</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Package &quot;</span><span class="si">%s</span><span class="s1">&quot; is not the latest version. &#39;</span>
+            <span class="s1">&#39;There is a more up-to-date version, &quot;</span><span class="si">%s</span><span class="s1">&quot;.&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">,</span>
+            <span class="n">latest_previous_publish</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;Overwriting latest &quot;</span><span class="si">%s</span><span class="s1">&quot; will be skipped.&#39;</span><span class="p">,</span> <span class="n">latest</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_copy_into_versioned_if_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documentation</span><span class="p">,</span> <span class="n">versioned</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Copy ``documentation`` to the :ref:`version folder`, if needed.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            documentation (str):</span>
+<span class="sd">                The absolute directory to built documentation on-disk.</span>
+<span class="sd">            versioned (str):</span>
+<span class="sd">                The absolute directory where all versioned documentation lives.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: If ``documentation`` was copied into the :ref:`version folder`.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">versioned</span><span class="p">)</span>
+        <span class="n">version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">version</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">version</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s1">&#39;Package &quot;</span><span class="si">%s</span><span class="s1">&quot; has no version. Skipping version documentation creation.&#39;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">raw_package_version</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">version</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_skip_existing_version_folder</span><span class="p">()</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_existing_folder</span><span class="p">(</span>
+            <span class="n">raw_package_version</span><span class="p">,</span> <span class="n">names</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">full_versioned</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">versioned</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resolved_publish_pattern</span><span class="p">())</span>
+        <span class="n">_copy_into</span><span class="p">(</span><span class="n">documentation</span><span class="p">,</span> <span class="n">full_versioned</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_prepare_repository</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">repository</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Checkout a branch as needed, clear folder(s), and otherwise prep for pushing.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            repository (BaseRepository): A cloned repository wrapper.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">branch</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_branch_name</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">branch</span><span class="p">:</span>
+            <span class="c1"># Nothing to do because the user wants to modify the current branch</span>
+            <span class="k">return</span>
+
+        <span class="k">if</span> <span class="n">repository</span><span class="o">.</span><span class="n">has_branch</span><span class="p">(</span><span class="n">branch</span><span class="p">):</span>
+            <span class="n">repository</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+            <span class="k">return</span>
+
+        <span class="n">repository</span><span class="o">.</span><span class="n">checkout</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">create</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">repository_root</span> <span class="o">=</span> <span class="n">repository</span><span class="o">.</span><span class="n">get_root</span><span class="p">()</span>
+        <span class="n">_clear_git_directory</span><span class="p">(</span><span class="n">repository_root</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="p">,</span> <span class="s2">&quot;apply_repository_template&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">apply_repository_template</span><span class="p">(</span><span class="n">repository_root</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_skip_existing_version_folder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bool: If True, documentation is not updated when patching versions.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_SKIP_EXISTING_VERSION</span><span class="p">]</span>
+
+<div class="viewcode-block" id="GitPublisher.allow_versioned_publishes"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.allow_versioned_publishes">[docs]</a>    <span class="k">def</span> <span class="nf">allow_versioned_publishes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bool: If True, this will create unique documentation per-version.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_VERSION_FOLDER</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="GitPublisher.is_publishing_enabled"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.is_publishing_enabled">[docs]</a>    <span class="k">def</span> <span class="nf">is_publishing_enabled</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bool: Check if this instance is authenticated and ready to publish.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitPublisher.is_required"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.is_required">[docs]</a>    <span class="k">def</span> <span class="nf">is_required</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;bool: Check if this publisher is expected to always have documentation.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_REQUIRED</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="GitPublisher.authenticate"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.authenticate">[docs]</a>    <span class="k">def</span> <span class="nf">authenticate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect this instance to the remote repository.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError: If none of the provided authentication methods succeeded.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">invalids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+        <span class="n">uri</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_resolved_repository_uri</span><span class="p">()</span>
+        <span class="n">methods</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">AUTHENICATION</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No authentication method available to run.&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
+            <span class="n">handler</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="n">uri</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">handler</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span> <span class="o">=</span> <span class="n">handler</span>
+
+                <span class="k">return</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">handler</span><span class="p">:</span>
+                <span class="n">invalids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">method</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_required</span><span class="p">():</span>
+            <span class="k">return</span>
+
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s1">&#39;These authentication methods &quot;</span><span class="si">{invalids}</span><span class="s1">&quot; failed.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                <span class="n">invalids</span><span class="o">=</span><span class="n">invalids</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitPublisher.quick_publish"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.quick_publish">[docs]</a>    <span class="k">def</span> <span class="nf">quick_publish</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">documentation</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clone, copy, and push ``documentation`` as required.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            documentation (str):</span>
+<span class="sd">                The absolute directory to built documentation on-disk.</span>
+
+<span class="sd">        Raises:</span>
+<span class="sd">            RuntimeError:</span>
+<span class="sd">                If this instance hasn&#39;t authenticated to a VCS remote, e.g. GitHub.</span>
+<span class="sd">            MissingDocumentation:</span>
+<span class="sd">                If documentation was expected to be added for commit + push</span>
+<span class="sd">                but, for some unknown reason, the git repository cannot commit</span>
+<span class="sd">                + push it. (This usually happens because of a messed up</span>
+<span class="sd">                `.gitignore`_ file or `.gitignore_global`_).</span>
+<span class="sd">            CannotMakeDocumentation:</span>
+<span class="sd">                If this instance disables &quot;latest&quot; folder publishes but the</span>
+<span class="sd">                given Rez package has no version, then there&#39;s literally</span>
+<span class="sd">                nothing that can be published. If this occurs, it&#39;s to be</span>
+<span class="sd">                treated as user / administrator error (not :ref:`rez_docbot`&#39;s</span>
+<span class="sd">                fault).</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s1">&#39;This instance &quot;</span><span class="si">{self!r}</span><span class="s1">&quot; has no repository handler.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">details</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_repository_details</span><span class="p">()</span>
+        <span class="n">destination_root</span> <span class="o">=</span> <span class="n">_make_temporary_directory</span><span class="p">()</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_handler</span><span class="o">.</span><span class="n">get_repository</span><span class="p">(</span>
+            <span class="n">details</span><span class="p">,</span> <span class="n">destination_root</span><span class="p">,</span> <span class="n">auto_create</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_follow_cloned_repository</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_repository</span><span class="p">(</span><span class="n">repository</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">version</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allow_latest_publishes</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">CannotMakeDocumentation</span><span class="p">(</span>
+                <span class="s1">&#39;Publisher &quot;</span><span class="si">{self}</span><span class="s1">&quot; disables &quot;latest&quot; folders but Rez package &#39;</span>
+                <span class="s1">&#39;&quot;</span><span class="si">{self._package.name}</span><span class="s1">&quot; has no version. Cannot continue.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">=</span><span class="bp">self</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">was_copied</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_copy_documentation_if_needed</span><span class="p">(</span><span class="n">documentation</span><span class="p">,</span> <span class="n">root</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">was_copied</span><span class="p">:</span>
+            <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No documentation was updated. Skipping commit + push.&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span>
+
+        <span class="n">repository</span><span class="o">.</span><span class="n">add_all</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">repository</span><span class="o">.</span><span class="n">is_ready_to_commit</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">exception</span><span class="o">.</span><span class="n">MissingDocumentation</span><span class="p">(</span>
+                <span class="s1">&#39;Package &quot;</span><span class="si">{self._package.name}</span><span class="s1">-</span><span class="si">{self._package.version}</span><span class="s1">&quot; has no &#39;</span>
+                <span class="s2">&quot;documentaion to publish. Something went wrong.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="n">message</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_commit_message</span><span class="p">()</span>
+        <span class="n">repository</span><span class="o">.</span><span class="n">commit</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="n">repository</span><span class="o">.</span><span class="n">push</span><span class="p">()</span>
+
+        <span class="n">_LOGGER</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s1">&#39;Package &quot;</span><span class="si">%s</span><span class="s1"> / </span><span class="si">%s</span><span class="s1">&quot; documentation was published.&#39;</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="o">.</span><span class="n">version</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitPublisher.get_resolved_repository_uri"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.get_resolved_repository_uri">[docs]</a>    <span class="k">def</span> <span class="nf">get_resolved_repository_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: Get the URL / URI / etc to a remote git repository.&quot;&quot;&quot;</span>
+        <span class="n">item</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_REPOSITORY_URI</span><span class="p">]</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">base</span> <span class="o">=</span> <span class="n">item</span><span class="p">[</span><span class="n">schema_type</span><span class="o">.</span><span class="n">ORIGINAL_TEXT</span><span class="p">]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">callable</span><span class="p">(</span><span class="n">item</span><span class="p">):</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">item</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">base</span> <span class="o">=</span> <span class="n">item</span>
+
+        <span class="k">return</span> <span class="n">base</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GitPublisher.get_resolved_view_url"><a class="viewcode-back" href="../../../api/rez_docbot.publishers.generic.html#rez_docbot.publishers.generic.GitPublisher.get_resolved_view_url">[docs]</a>    <span class="k">def</span> <span class="nf">get_resolved_view_url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a viewable URL where documentation can be seen.</span>
+
+<span class="sd">        This differs from the publish URL. For example, the publish URL for</span>
+<span class="sd">        GitHub is typically ``&quot;git@github.com:UserName/{package.name}&quot;`` but</span>
+<span class="sd">        the documentation is viewed in</span>
+<span class="sd">        ``&quot;https://UserName.github.io/{package.name}&quot;``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            str: The found website URL.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">base_url</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_VIEW_URL</span><span class="p">]</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_package</span><span class="p">)</span>
+        <span class="n">version_folder_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">_VERSION_FOLDER</span><span class="p">]</span>
+        <span class="n">version_folder_number</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_resolved_publish_pattern</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">{base_url}</span><span class="s2">/</span><span class="si">{version_folder_name}</span><span class="s2">/</span><span class="si">{version_folder_number}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="n">base_url</span><span class="o">=</span><span class="n">base_url</span><span class="p">,</span>
+            <span class="n">version_folder_name</span><span class="o">=</span><span class="n">version_folder_name</span><span class="p">,</span>
+            <span class="n">version_folder_number</span><span class="o">=</span><span class="n">version_folder_number</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;str: The string representation of this instance.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="s2">&quot;</span><span class="si">{self.__class__.__name__}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;(</span><span class="si">{self._data!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;package=</span><span class="si">{self._package!r}</span><span class="s2">, &quot;</span>
+            <span class="s2">&quot;handler=</span><span class="si">{self._handler!r}</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;)&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_clear_git_directory</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Delete all contents in ``directory`` but keep hidden + git related files.</span>
+
+<span class="sd">    Coincidentally, hidden files and git related files all start with &quot;.&quot;, so</span>
+<span class="sd">    we just don&#39;t delete any ``.git``, ``.gitmodules``, ``.gitignore``, etc files.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        directory (str): An absolute or relative path to a folder on-disk.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">full</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">full</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">full</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">full</span><span class="p">):</span>
+            <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">full</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">islink</span><span class="p">(</span><span class="n">full</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">full</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_copy_into</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Clear ``destination`` and replace it with ``source``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        source (str): The absolute path to a directory to copy from.</span>
+<span class="sd">        destination (str): The absolute path to a directory to copy / rename to.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">destination</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+
+    <span class="n">root</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">destination</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copytree</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">destination</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_create_subdirectory</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">tail</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Combine ``root`` and ``tail`` and create a directory there.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root (str): The absolute path to a directory to start from.</span>
+<span class="sd">        tail (str): The subdirectory folder(s) to add onto ``root``.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The existing / created directory.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="n">tail</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">directory</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">directory</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+
+
+<span class="k">def</span> <span class="nf">_make_temporary_directory</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;str: Make a directory on-disk to delete later.&quot;&quot;&quot;</span>
+    <span class="n">directory</span> <span class="o">=</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">mkdtemp</span><span class="p">(</span><span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_rez_docbot_make_temporary_directory&quot;</span><span class="p">)</span>
+
+    <span class="c1"># atexit.register(functools.partial(shutil.rmtree, directory))</span>
+
+    <span class="k">return</span> <span class="n">directory</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_url_repository</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Get the git repository from a full URL (HTTPS / SSH / etc).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url (str): Some remote URL. e.g. ``&quot;git@github.com:Foo/bar.git&quot;``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``url`` is not a parsable git repository.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The found repository name. e.g. ``&quot;bar&quot;``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">giturlparse</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="s2">&quot;repo&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;URL &quot;</span><span class="si">{url}</span><span class="s1">&quot; could not be parsed.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+
+    <span class="n">repository</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">repo</span>  <span class="c1"># pylint: disable=no-member</span>
+
+    <span class="k">if</span> <span class="n">repository</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="n">_GIT_HEADLESS_REPOSITORY_SUFFIX</span><span class="p">):</span>
+        <span class="n">repository</span> <span class="o">=</span> <span class="n">repository</span><span class="p">[:</span> <span class="o">-</span><span class="mi">1</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">_GIT_HEADLESS_REPOSITORY_SUFFIX</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="n">repository</span>
+
+
+<span class="k">def</span> <span class="nf">_parse_url_owner</span><span class="p">(</span><span class="n">url</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Convert a git URL (HTTPS / SSH) to a owner name.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        url (str):</span>
+<span class="sd">            Some remote location, e.g. ``&quot;https://github.com/Foo/bar.git&quot;`` or</span>
+<span class="sd">            ``&quot;git@github.com:Foo/bar.git&quot;``</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``url`` is not a parsable git repository.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The found owner name. e.g. ``&quot;Foo&quot;``.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">giturlparse</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="s2">&quot;owner&quot;</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;URL &quot;</span><span class="si">{url}</span><span class="s1">&quot; could not be parsed.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">url</span><span class="o">=</span><span class="n">url</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">parsed</span><span class="o">.</span><span class="n">owner</span>  <span class="c1"># pylint: disable=no-member</span>
+
+
+<span class="k">def</span> <span class="nf">_validate_authenticator</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ensure ``method`` can be processed by :class:`GitPublisher`.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If ``method`` is invalid.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="s2">&quot;authenticate&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">method</span>
+
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+        <span class="s1">&#39;Object &quot;</span><span class="si">{method!r}</span><span class="s1">&quot; has no authentication method.&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">method</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ColinKennedy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

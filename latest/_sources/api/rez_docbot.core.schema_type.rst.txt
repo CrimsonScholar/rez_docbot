@@ -1,0 +1,7 @@
+rez\_docbot.core.schema\_type
+-----------------------------
+
+.. automodule:: rez_docbot.core.schema_type
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,13 @@
+rez\_docbot.adapters.github
+===========================
+
+.. toctree::
+   :maxdepth: 4
+
+   github <rez_docbot.adapters.github.github>
+   internals <rez_docbot.adapters.github.internals>
+
+.. automodule:: rez_docbot.adapters.github
+   :members:
+   :undoc-members:
+   :show-inheritance:

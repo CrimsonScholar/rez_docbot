@@ -1,0 +1,7 @@
+rez\_docbot.publishers.generic
+------------------------------
+
+.. automodule:: rez_docbot.publishers.generic
+   :members:
+   :undoc-members:
+   :show-inheritance:

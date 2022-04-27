@@ -1,0 +1,7 @@
+rez\_docbot.publishers.github
+-----------------------------
+
+.. automodule:: rez_docbot.publishers.github
+   :members:
+   :undoc-members:
+   :show-inheritance:

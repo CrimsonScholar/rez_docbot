@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rez_docbot.core.preference &mdash; rez_docbot 1.0.0 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="rez_docbot.core.publisher_" href="rez_docbot.core.publisher_.html" />
+    <link rel="prev" title="rez_docbot.core.exception" href="rez_docbot.core.exception.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+            <a href="../index.html" class="icon icon-home"> rez_docbot
+          </a>
+              <div class="version">
+                1.0
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user_documentation.html">User Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_documentation.html">Developer Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="rez_docbot.html">rez_docbot</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="rez_docbot.adapters.html">adapters</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rez_docbot.api.html">api</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rez_docbot.bases.html">bases</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="rez_docbot.core.html">core</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="rez_docbot.core.common.html">common</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rez_docbot.core.exception.html">exception</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">preference</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rez_docbot.core.publisher_.html">publisher_</a></li>
+<li class="toctree-l4"><a class="reference internal" href="rez_docbot.core.schema_type.html">schema_type</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="rez_docbot.publishers.html">publishers</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">rez_docbot</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+          <li><a href="modules.html">python</a> &raquo;</li>
+          <li><a href="rez_docbot.html">rez_docbot</a> &raquo;</li>
+          <li><a href="rez_docbot.core.html">rez_docbot.core</a> &raquo;</li>
+      <li>rez_docbot.core.preference</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/rez_docbot.core.preference.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-rez_docbot.core.preference">
+<span id="rez-docbot-core-preference"></span><h1>rez_docbot.core.preference<a class="headerlink" href="#module-rez_docbot.core.preference" title="Permalink to this headline"></a></h1>
+<p>A module for describing all <a class="reference internal" href="../user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a> settings.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="rez_docbot.core.preference.get_all_publishers">
+<span class="sig-name descname"><span class="pre">get_all_publishers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rez_docbot/core/preference.html#get_all_publishers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rez_docbot.core.preference.get_all_publishers" title="Permalink to this definition"></a></dt>
+<dd><p>Get every publish method registered globally and under <code class="docutils literal notranslate"><span class="pre">package</span></code>.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The returned <a class="reference internal" href="rez_docbot.bases.base.html#rez_docbot.bases.base.Publisher" title="rez_docbot.bases.base.Publisher"><code class="xref py py-class docutils literal notranslate"><span class="pre">Publisher</span></code></a> classes are not authenticated by
+default.  You need to call <a class="reference internal" href="rez_docbot.bases.base.html#rez_docbot.bases.base.Publisher.authenticate" title="rez_docbot.bases.base.Publisher.authenticate"><code class="xref py py-meth docutils literal notranslate"><span class="pre">Publisher.authenticate()</span></code></a> to connect
+them to a remote repository database (like <a class="reference external" href="https://github.com">GitHub</a>).</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>package</strong> (<a class="reference external" href="https://nerdvegas.github.io/rez/api/rez.html#rez.packages.Package" title="(in Rez v2.109)"><em>rez.packages.Package</em></a>) – A package which may contain extra configuration overrides.
+Any override not found will be retrieved globally.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Every registered publish method.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.10)">list</a>[<a class="reference internal" href="rez_docbot.bases.base.html#rez_docbot.bases.base.Publisher" title="rez_docbot.bases.base.Publisher">Publisher</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rez_docbot.core.preference.get_base_settings">
+<span class="sig-name descname"><span class="pre">get_base_settings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rez_docbot/core/preference.html#get_base_settings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rez_docbot.core.preference.get_base_settings" title="Permalink to this definition"></a></dt>
+<dd><p>Get the parsed classes for publishing documentation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>package</strong> (<a class="reference external" href="https://nerdvegas.github.io/rez/api/rez.html#rez.packages.Package" title="(in Rez v2.109)"><em>rez.packages.Package</em></a>) – A package which may contain extra configuration overrides.
+Any override not found will be retrieved globally.</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>The parsed user configuration settings.</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.10)">dict</a>[<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.10)">object</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="rez_docbot.core.preference.get_first_versioned_view_url">
+<span class="sig-name descname"><span class="pre">get_first_versioned_view_url</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">package</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_optionals</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/rez_docbot/core/preference.html#get_first_versioned_view_url"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#rez_docbot.core.preference.get_first_versioned_view_url" title="Permalink to this definition"></a></dt>
+<dd><p>Find a URL where published documentation lives.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>package</strong> (<a class="reference external" href="https://nerdvegas.github.io/rez/api/rez.html#rez.packages.Package" title="(in Rez v2.109)"><em>rez.packages.Package</em></a><em>, </em><em>optional</em>) – A package which may contain extra configuration overrides.
+Any override not found will be retrieved globally.</p></li>
+<li><p><strong>allow_optionals</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.10)"><em>bool</em></a><em>, </em><em>optional</em>) – In <a class="reference internal" href="../user_documentation.html#rez-docbot"><span class="std std-ref">rez_docbot</span></a>’s configuration, users can mark documentation
+sources as optional (or not). If it’s optional, there’s a chance
+that the documentation URL points to nothing. If you would rather
+ensure the returned URL definitely has documentation, use the
+default option for this parameter (<code class="docutils literal notranslate"><span class="pre">False</span></code>).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#RuntimeError" title="(in Python v3.10)"><strong>RuntimeError</strong></a> – If no viewing URL could be found.</p>
+</dd>
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>A recommended, found URL to view the documentation from.</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.10)">str</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="rez_docbot.core.exception.html" class="btn btn-neutral float-left" title="rez_docbot.core.exception" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="rez_docbot.core.publisher_.html" class="btn btn-neutral float-right" title="rez_docbot.core.publisher_" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2022, ColinKennedy.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,7 @@
+rez\_docbot.api
+---------------
+
+.. automodule:: rez_docbot.api
+   :members:
+   :undoc-members:
+   :show-inheritance:
